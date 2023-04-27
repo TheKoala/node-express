@@ -53,6 +53,20 @@ class LivroController {
           .send({ message: `${erro.message} - falha ao atualizar livro` });
       });
   };
+
+  static excluirLivro = (req, res) => {
+    const id = req.params.id;
+    livros
+      .findByIdAndDelete(id)
+      .then(() => {
+        res.status(200).send();
+      })
+      .catch((erro) => {
+        res
+          .status(500)
+          .send({ message: `${erro.message} - falha ao deletar livro` });
+      });
+  };
 }
 
 export default LivroController;
