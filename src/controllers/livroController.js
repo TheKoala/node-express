@@ -4,6 +4,7 @@ class LivroController {
   static listarLivros = (req, res) => {
     livros
       .find()
+      .populate("autor")
       .then((livros) => {
         res.status(200).json(livros);
       })
@@ -14,6 +15,7 @@ class LivroController {
     const id = req.params.id;
     livros
       .findById(id)
+      .populate("autor", "nome")
       .then((livro) => {
         res.status(200).send(livro);
       })
@@ -21,6 +23,21 @@ class LivroController {
         res
           .status(400)
           .send({ message: `${erro.message} - Id do livro não localizado.` });
+      });
+  };
+
+  static listarLivroEditora = (req, res) => {
+    const editora = req.query.editora;
+    livros
+      .find({'editora': editora})
+      .populate("autor")
+      .then((livros) => {
+        res.status(200).send(livros);
+      })
+      .catch((erro) => {
+        res
+          .status(400)
+          .send({ message: `${erro.message} - livros não localizados.` });
       });
   };
 
