@@ -1,4 +1,5 @@
 import autores from "../models/Autor.js";
+import mongoose from "mongoose";
 
 class AutorController {
   static listarAutores = (req, res) => {
@@ -15,12 +16,22 @@ class AutorController {
     autores
       .findById(id)
       .then((autor) => {
-        res.status(200).send(autor);
+        if (autor !== null) {
+          res.status(200).send(autor);
+        } else {
+          res.status(404).send({ message: "Id do autor não localizado." });
+        }
       })
       .catch((erro) => {
-        res
-          .status(400)
-          .send({ message: `${erro.message} - Id do autor não localizado.` });
+        if (erro instanceof mongoose.Error.CastError) {
+          res
+            .status(400)
+            .send({ message: "Um ou mais dados fornecidos estão incorretos." });
+        } else {
+          res
+            .status(500)
+            .send({ message: `${erro.message} - Erro interno` });
+        }
       });
   };
 
