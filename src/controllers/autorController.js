@@ -1,17 +1,16 @@
 import autores from "../models/Autor.js";
-import mongoose from "mongoose";
 
 class AutorController {
-  static listarAutores = (req, res) => {
+  static listarAutores = (req, res, next) => {
     autores
       .find()
       .then((autores) => {
         res.status(200).json(autores);
       })
-      .catch((erro) => console(erro));
+      .catch((erro) => next(erro));
   };
 
-  static listarAutorPorId = (req, res) => {
+  static listarAutorPorId = (req, res, next) => {
     const id = req.params.id;
     autores
       .findById(id)
@@ -23,19 +22,11 @@ class AutorController {
         }
       })
       .catch((erro) => {
-        if (erro instanceof mongoose.Error.CastError) {
-          res
-            .status(400)
-            .send({ message: "Um ou mais dados fornecidos estão incorretos." });
-        } else {
-          res
-            .status(500)
-            .send({ message: `${erro.message} - Erro interno` });
-        }
+        next(erro);
       });
   };
 
-  static cadastrarAutor = (req, res) => {
+  static cadastrarAutor = (req, res, next) => {
     let autor = new autores(req.body);
     autor
       .save()
@@ -43,15 +34,11 @@ class AutorController {
         res.status(201).send(autor.toJSON());
       })
       .catch((erro) => {
-        if (erro) {
-          res
-            .status(500)
-            .send({ message: `${erro.message} - falha ao cadastrar autor` });
-        }
+        next(erro);
       });
   };
 
-  static atualizarAutor = (req, res) => {
+  static atualizarAutor = (req, res, next) => {
     const id = req.params.id;
     autores
       .findByIdAndUpdate(id, { $set: req.body })
@@ -59,23 +46,23 @@ class AutorController {
         res.status(200).send("autor atualizado com sucesso");
       })
       .catch((erro) => {
-        res
-          .status(500)
-          .send({ message: `${erro.message} - falha ao atualizar autor` });
+        next(erro);
       });
   };
 
-  static excluirAutor = (req, res) => {
+  static excluirAutor = (req, res, next) => {
     const id = req.params.id;
     autores
       .findByIdAndDelete(id)
-      .then(() => {
-        res.status(200).send();
+      .then((autor) => {
+        if (autor !== null) {
+          res.status(200).send();
+        } else {
+          res.status(404).send({ message: "Id do autor não localizado." });
+        }
       })
       .catch((erro) => {
-        res
-          .status(500)
-          .send({ message: `${erro.message} - falha ao deletar autor` });
+        next(erro);
       });
   };
 }
