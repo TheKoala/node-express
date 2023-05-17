@@ -1,3 +1,4 @@
+import NaoEncontrado from "../Errors/NaoEncontrado.js";
 import livros from "../models/Livro.js";
 
 class LivroController {
@@ -20,7 +21,7 @@ class LivroController {
         if (livro !== null) {
           res.status(200).send(livro);
         } else {
-          res.status(404).send({ message: "Id do livro não localizado." });
+          next(new NaoEncontrado("Id do livro não localizado"));
         }
       })
       .catch((erro) => {
@@ -34,7 +35,11 @@ class LivroController {
       .find({ editora: editora })
       .populate("autor")
       .then((livros) => {
-        res.status(200).send(livros);
+        if(livros.length > 0){
+          res.status(200).send(livros);
+        } else {
+          next(new NaoEncontrado("Não foram encontrados livros da editora pesquisada"));
+        }
       })
       .catch((erro) => {
         next(erro);
@@ -59,8 +64,12 @@ class LivroController {
     const id = req.params.id;
     livros
       .findByIdAndUpdate(id, { $set: req.body })
-      .then(() => {
-        res.status(200).send("livro atualizado com sucesso");
+      .then((livro) => {
+        if(livro !== null) {
+          res.status(200).send("livro atualizado com sucesso");
+        } else {
+          next(new NaoEncontrado("Não foram encontrados livros da editora pesquisada"));
+        }
       })
       .catch((erro) => {
         next(erro);
@@ -75,7 +84,7 @@ class LivroController {
         if (livro !== null) {
           res.status(200).send();
         } else {
-          res.status(404).send({ message: "Id do livro não localizado." });
+          next(new NaoEncontrado("Não foram encontrados livros da editora pesquisada"));
         }
       })
       .catch((erro) => {
