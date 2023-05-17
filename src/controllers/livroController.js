@@ -68,7 +68,7 @@ class LivroController {
         if(livro !== null) {
           res.status(200).send("livro atualizado com sucesso");
         } else {
-          next(new NaoEncontrado("Não foram encontrados livros da editora pesquisada"));
+          next(new NaoEncontrado("Id do livro não localizado"));
         }
       })
       .catch((erro) => {
@@ -84,7 +84,7 @@ class LivroController {
         if (livro !== null) {
           res.status(200).send();
         } else {
-          next(new NaoEncontrado("Não foram encontrados livros da editora pesquisada"));
+          next(new NaoEncontrado("Id do livro não localizado"));
         }
       })
       .catch((erro) => {

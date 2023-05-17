@@ -14,8 +14,22 @@ const livroSchema = mongoose.Schema({
   editora: {
     type: String,
     required: [true, "A editora é obrigatório"],
+    enum: {
+      values: ["Casa do código", "Editora Arqueiro"],
+      message: "A editora {VALUE} não é um valor permitido."
+    }
   },
-  numeroPaginas: { type: Number },
+  numeroPaginas: {
+    type: Number,
+    min: [
+      10,
+      "O campo numeroPaginas: {VALUE} é menor que o valor mínimo permitido (10)",
+    ],
+    max: [
+      5000,
+      "O campo numeroPaginas: {VALUE} é maior que o valor máximo permitido (5000)",
+    ],
+  },
 });
 
 const livros = mongoose.model("livros", livroSchema);
