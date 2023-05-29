@@ -1,5 +1,5 @@
 import NaoEncontrado from "../Errors/NaoEncontrado.js";
-import livros from "../models/Livro.js";
+import { livros } from "../models/index.js";
 
 class LivroController {
   static listarLivros = (req, res, next) => {
@@ -35,10 +35,14 @@ class LivroController {
       .find({ editora: editora })
       .populate("autor")
       .then((livros) => {
-        if(livros.length > 0){
+        if (livros.length > 0) {
           res.status(200).send(livros);
         } else {
-          next(new NaoEncontrado("Não foram encontrados livros da editora pesquisada"));
+          next(
+            new NaoEncontrado(
+              "Não foram encontrados livros da editora pesquisada"
+            )
+          );
         }
       })
       .catch((erro) => {
@@ -65,7 +69,7 @@ class LivroController {
     livros
       .findByIdAndUpdate(id, { $set: req.body })
       .then((livro) => {
-        if(livro !== null) {
+        if (livro !== null) {
           res.status(200).send("livro atualizado com sucesso");
         } else {
           next(new NaoEncontrado("Id do livro não localizado"));
