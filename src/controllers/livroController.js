@@ -29,10 +29,15 @@ class LivroController {
       });
   };
 
-  static listarLivroEditora = (req, res, next) => {
-    const editora = req.query.editora;
+  static listarLivroPorFiltro = (req, res, next) => {
+    const { editora, titulo } = req.query;
+
+    const busca = {};
+    if (editora) busca.editora = editora;
+    if (titulo) busca.titulo = titulo;
+
     livros
-      .find({ editora: editora })
+      .find(busca)
       .populate("autor")
       .then((livros) => {
         if (livros.length > 0) {
