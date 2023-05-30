@@ -3,12 +3,9 @@ import { autores } from "../models/index.js";
 
 class AutorController {
   static listarAutores = (req, res, next) => {
-    autores
-      .find()
-      .then((autores) => {
-        res.status(200).json(autores);
-      })
-      .catch((erro) => next(erro));
+    const consulta = autores.find();
+    req.consulta = consulta;
+    next();
   };
 
   static listarAutorPorId = (req, res, next) => {

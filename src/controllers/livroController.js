@@ -1,33 +1,11 @@
 import NaoEncontrado from "../Errors/NaoEncontrado.js";
-import RequisicaoIncorreta from "../Errors/RequisicaoIncorreta.js";
 import { autores, livros } from "../models/index.js";
 
 class LivroController {
   static listarLivros = (req, res, next) => {
-    let {
-      limite = 3,
-      pagina = 1,
-      campoOrdenacao = "_id",
-      ordem = -1,
-    } = req.query;
-
-    limite = parseInt(limite);
-    pagina = parseInt(pagina);
-
-    if (limite > 0 && pagina > 0) {
-      livros
-        .find()
-        .populate("autor")
-        .sort({ [campoOrdenacao] : ordem })
-        .skip((pagina - 1) * limite)
-        .limit(limite)
-        .then((livros) => {
-          res.status(200).json(livros);
-        })
-        .catch((erro) => next(erro));
-    } else {
-      next(new RequisicaoIncorreta());
-    }
+    const buscaLivros = livros.find().populate("autor");
+    req.consulta = buscaLivros;
+    next();
   };
 
   static listarLivroPorId = (req, res, next) => {
@@ -51,29 +29,10 @@ class LivroController {
     try {
       const busca = await processaBusca(req.query);
 
-      console.log(busca);
-
-      // const livrosResultado = await livros.find(busca).populate("autor");
-      // res.status(200).send(livrosResultado);
-
       if (busca !== null) {
-        livros
-          .find(busca)
-          .populate("autor")
-          .then((livros) => {
-            if (livros.length > 0) {
-              res.status(200).send(livros);
-            } else {
-              next(
-                new NaoEncontrado(
-                  "Não foram encontrados livros com os parametros pesquisados"
-                )
-              );
-            }
-          })
-          .catch((erro) => {
-            next(erro);
-          });
+        const buscaLivros = livros.find(busca).populate("autor");
+        req.consulta = buscaLivros;
+        next();
       } else {
         res.status(200).send([]);
       }
@@ -135,14 +94,12 @@ async function processaBusca(params) {
   let busca = {};
 
   if (editora) busca.editora = { $regex: editora, $options: "i" };
-  //const regex = new RegExp(titulo, "i");
   if (titulo) busca.titulo = { $regex: titulo, $options: "i" };
 
   if (minPaginas || maxPaginas) busca.numeroPaginas = {};
   if (minPaginas) busca.numeroPaginas.$gte = minPaginas;
   if (maxPaginas) busca.numeroPaginas.$lte = maxPaginas;
 
-  console.log(nomeAutor);
   if (nomeAutor) {
     const autor = await autores.findOne({
       nome: { $regex: nomeAutor, $options: "i" },
