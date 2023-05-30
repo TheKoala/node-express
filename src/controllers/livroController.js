@@ -3,7 +3,7 @@ import { autores, livros } from "../models/index.js";
 
 class LivroController {
   static listarLivros = (req, res, next) => {
-    const buscaLivros = livros.find().populate("autor");
+    const buscaLivros = livros.find();
     req.consulta = buscaLivros;
     next();
   };
@@ -11,7 +11,7 @@ class LivroController {
   static listarLivroPorId = (req, res, next) => {
     const id = req.params.id;
     livros
-      .findById(id)
+      .findById(id, {}, { autopopulate: false })
       .populate("autor", "nome")
       .then((livro) => {
         if (livro !== null) {
@@ -30,7 +30,7 @@ class LivroController {
       const busca = await processaBusca(req.query);
 
       if (busca !== null) {
-        const buscaLivros = livros.find(busca).populate("autor");
+        const buscaLivros = livros.find(busca);
         req.consulta = buscaLivros;
         next();
       } else {
